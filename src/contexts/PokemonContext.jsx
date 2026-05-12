@@ -1,16 +1,16 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useMemo } from 'react';
 
 export const PokemonContext = createContext();
 
 export const PokemonProvider = ({ children }) => {
   const [pokemonData, setPokemonData] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const searchPokemon = async (name) => {
-    // Validação de campo obrigatório antes do envio
-    if (!name.trim()) {
-      setError("Por favor, digite o nome de um Pokémon.");
+    // VALIDAÇÃO ANTES DO ENVIO (Requisito: Campo Obrigatório)
+    if (!name || name.trim() === "") {
+      setError("Preenchimento obrigatório: Digite o nome ou ID.");
       setPokemonData(null);
       return;
     }
@@ -19,11 +19,11 @@ export const PokemonProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase().trim()}`);
       
+      // VALIDAÇÃO DEPOIS DO ENVIO (Requisito: Mensagem de Erro da API)
       if (!response.ok) {
-        // Mensagem de erro após o envio
-        throw new Error("Pokémon não encontrado. Verifique a grafia.");
+        throw new Error("Pokémon não encontrado na base de dados.");
       }
 
       const data = await response.json();
@@ -36,8 +36,15 @@ export const PokemonProvider = ({ children }) => {
     }
   };
 
+  // HOOK SELECIONADO: useMemo (Requisito: Implementação de hook específico)
+  // Calcula a soma total dos status base do Pokémon
+  const totalBaseStats = useMemo(() => {
+    if (!pokemonData) return 0;
+    return pokemonData.stats.reduce((acc, curr) => acc + curr.base_stat, 0);
+  }, [pokemonData]);
+
   return (
-    <PokemonContext.Provider value={{ pokemonData, error, loading, searchPokemon }}>
+    <PokemonContext.Provider value={{ pokemonData, loading, error, searchPokemon, totalBaseStats }}>
       {children}
     </PokemonContext.Provider>
   );

@@ -1,6 +1,6 @@
 import { useContext, useRef } from 'react';
 import { PokemonContext } from '../contexts/PokemonContext';
-import { TextField, Button, Box } from '@mui/material'; // Componentes do MUI
+import { TextField, Box } from '@mui/material';
 
 export const SearchBar = () => {
   const inputRef = useRef(null);
@@ -11,24 +11,18 @@ export const SearchBar = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400, margin: '0 auto', mt: 4 }}>
+    <Box sx={{ mt: 2, px: 2 }}>
       <TextField
-        label="Nome do Pokémon"
-        variant="outlined"
-        inputRef={inputRef}
-        error={!!error} // Se houver erro, a borda fica vermelha
-        helperText={error} // Exibe a mensagem de erro embaixo do campo
-        disabled={loading}
         fullWidth
-      />
-      <Button 
-        variant="contained" 
-        onClick={handleAction} 
+        inputRef={inputRef}
+        placeholder="Ex: Pikachu ou 25"
+        size="small"
+        error={!!error} // Fica vermelho se houver erro (antes ou depois)
+        helperText={error} // Exibe a mensagem de erro no layout
         disabled={loading}
-        size="large"
-      >
-        {loading ? 'Buscando...' : 'Pesquisar'}
-      </Button>
+        onKeyPress={(e) => e.key === 'Enter' && handleAction()}
+        sx={{ bgcolor: '#fff', borderRadius: 1 }}
+      />
     </Box>
   );
 };
